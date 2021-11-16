@@ -6,8 +6,14 @@ const manifest = {
 	"version": "0.0.1",
 	"catalogs": [
 		{
+			"name": "BTPAnimeMovies",
 			"type": "movie",
-			"id": "top"
+			"id": "BTPAnimeMovies"
+		},
+		{
+			"name": "BTPAnimeSeries",
+			"type": "series",
+			"id": "BTPAnimeSeries"
 		}
 	],
 	"resources": [
