@@ -1,0 +1,22 @@
+{
+  "name": "btpanimeaddon",
+  "version": "0.0.1",
+  "description": "Banana the pirate's stremio anime addon",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bananathepirate/BTPanimeaddon.git"
+  },
+  "keywords": [
+    "stremio"
+  ],
+  "author": "BananaThePirate",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bananathepirate/BTPanimeaddon/issues"
+  },
+  "homepage": "https://github.com/bananathepirate/BTPanimeaddon#readme"
+}
