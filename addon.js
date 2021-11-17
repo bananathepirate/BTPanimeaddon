@@ -1,5 +1,9 @@
 const { addonBuilder } = require("stremio-addon-sdk")
 
+const needle = require('needle')
+
+const kitsuEndpoint = 'https://addon.stremio-kitsu.cf'
+
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
 const manifest = {
 	"id": "community.BTPanimeaddon",
@@ -8,7 +12,8 @@ const manifest = {
 		{
 			"name": "BTPAnimeMovies",
 			"type": "movie",
-			"id": "BTPAnimeMovies"
+			"id": "BTPAnimeMovies",
+			"idPrefixes": "BTPAM_"
 		},
 		{
 			"name": "BTPAnimeSeries",
@@ -18,8 +23,7 @@ const manifest = {
 	],
 	"resources": [
 		"catalog",
-		"stream",
-		"meta"
+		"stream"
 	],
 	"types": [
 		"movie",
@@ -43,23 +47,25 @@ builder.defineCatalogHandler(({type, id, extra}) => {
 	] })
 })
 
-builder.defineMetaHandler(({type, id}) => {
-	console.log("request for meta: "+type+" "+id)
-	// Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineMetaHandler.md
-	return Promise.resolve({ meta: null })
+builder.defineStreamHandler(function(args) {
+    if (dataset[args.id]) {
+        return Promise.resolve({ streams: [dataset[args.id]] });
+    } else {
+        return Promise.resolve({ streams: [] });
+    }
 })
 
-builder.defineStreamHandler(({type, id}) => {
-	console.log("request for streams: "+type+" "+id)
-	// Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineStreamHandler.md
-	if (type === "movie" && id === "tt1254207") {
-		// serve one stream to big buck bunny
-		const stream = { url: "http://distribution.bbb3d.renderfarming.net/video/mp4/bbb_sunflower_1080p_30fps_normal.mp4" }
-		return Promise.resolve({ streams: [stream] })
-	}
+function GetMovieMeta(AnimeMovie) {
+	const url = kitsuEndpoint + '/catalog/movie/kitsu-search-movie/search=' + encodeURIComponent(AnimeMovie.title) + '.json'
+	needle.get(url, (err, resp, body) => {
+		// presuming the first result is the correct one
+		const meta = ((body || {}).metas || [])[0]
+		if (meta)
+			return meta
+		else
+			console.error(new Error('No results from Kitsu for the title: ' + animeMeta.title))
+	})
 
-	// otherwise return no streams
-	return Promise.resolve({ streams: [] })
-})
+}
 
 module.exports = builder.getInterface()
