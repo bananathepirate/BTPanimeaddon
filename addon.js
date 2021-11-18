@@ -11,7 +11,7 @@ const manifest = {
 	"catalogs": [
 		{
 			"name": "BTP Anime",
-			"type": "series",
+			"type": "movie",
 			"id": "BTPAnime",
 			"idPrefix": 'kitsu:'
 		}
@@ -23,6 +23,7 @@ const manifest = {
 	],
 	"types": [
 		"series",
+		"movie",
 		"meta"
 	],
 	"name": "BTPanimeaddon",
@@ -39,19 +40,22 @@ const AnimeStreams = require('./stream/movie/BTPAM_YourName.json')
 builder.defineMetaHandler(args => {
 	return new Promise((resolve, reject) => {
 		const url = kitsuEndpoint + '/meta/' + args.type + '/' + args.id + '.json'
-	  	needle.get(url, (err, resp, body) => {
+		/*
+	  	needle.get(url, (body) => {
 		if ((body || {}).meta)
 			resolve(body)
 		else
 			reject(new Error('Could not get meta from kitsu api for: '+args.id))
-		})
+			})
+		*/
+		resolve(needle.get(url).meta)
 	})
 })
 
 builder.defineCatalogHandler(({type, id}) => {
 	console.log("request for catalogs: "+type+" "+id)
 	return Promise.resolve({ metas: [
-		BTPAnime
+		BTPAnimeMovies
 	] })
 })
 
