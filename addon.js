@@ -41,11 +41,11 @@ const AnimeStreams = require('./stream/movie/BTPAnime_YourName.json')
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
 //I want my stuf to be seperate from all others, so I'm making my own IDs, kId is short for Kitsu ID
-builder.defineMetaHandler(({id}) => {
+builder.defineMetaHandler((args => {
 	return new Promise((resolve) => {
-		resolve(getkitsu(id))
+		resolve(getkitsu(args.id))
 	})
-})
+}))
 
 function getkitsu(id) {
 	const url = kitsuEndpoint + '/meta/series/' + BTPAnimeMovies[id].kId + '.json'
