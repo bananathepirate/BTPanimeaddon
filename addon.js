@@ -2,7 +2,7 @@ const { addonBuilder } = require("stremio-addon-sdk")
 
 const needle = require('needle')
 
-const kitsuEndpoint = 'https://addon.stremio-kitsu.cf'
+const kitsuEndpoint = 'https://anime-kitsu.strem.fun'
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
 const manifest = {
@@ -24,7 +24,8 @@ const manifest = {
 	],
 	"resources": [
 		"catalog",
-		"stream"
+		"stream",
+		"meta"
 	],
 	"types": [
 		"movie",
@@ -37,27 +38,12 @@ const manifest = {
 const builder = new addonBuilder(manifest)
 
 const BTPAnimeMovies = require('./database/movies.json');
-const BTPAnimeSeries = require('./database/series.json');
-const BTPdatabase = require('./database.json')
+const AnimeStreams = require('./stream/movie/BTPAM_YourName.json')
+//const BTPAnimeSeries = require('./database/series.json');
+//const BTPdatabase = require('./database.json')
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
-builder.defineCatalogHandler(({type, id, extra}) => {
-	console.log("request for catalogs: "+type+" "+id)
-	return Promise.resolve({ metas: [
-		BTPAnimeMovies,
-		BTPAnimeSeries
-	] })
-})
-
-builder.defineStreamHandler(function(args) {
-    if (dataset[args.id]) {
-        return Promise.resolve({ streams: [dataset[args.id]] });
-    } else {
-        return Promise.resolve({ streams: [] });
-    }
-})
-
-addon.defineMetaHandler(args => {
+builder.defineMetaHandler(args => {
 	return new Promise((resolve, reject) => {
 		const url = kitsuEndpoint + '/meta/' + args.type + '/' + args.id + '.json'
 	  needle.get(url, (err, resp, body) => {
@@ -67,6 +53,40 @@ addon.defineMetaHandler(args => {
 		  reject(new Error('Could not get meta from kitsu api for: '+args.id))
 	  })
 	})
-  })
+})
+
+builder.defineCatalogHandler(({type, id, extra}) => {
+	console.log("request for catalogs: "+type+" "+id)
+	return Promise.resolve({ metas: [
+		BTPAnimeMovies
+	] })
+})
+
+builder.defineStreamHandler(function(args) {
+    if (BTPAnimeMovies[args.id]) {
+        return Promise.resolve({ streams: [BTPAnimeMovies[args.id]] });
+    } else {
+        return Promise.resolve({ streams: [] });
+    }
+})
+
+
+
+/*
+const animeMeta = {
+	title: 'Your Name.',
+	type: 'movie'
+}
+const url = kitsuEndpoint + '/catalog/' + animeMeta.type + '/kitsu-search-' + animeMeta.type + '/search=' + encodeURIComponent(animeMeta.title) + '.json'
+needle.get(url, (err, resp, body) => {
+	// presuming the first result is the correct one
+	const meta = ((body || {}).metas || [])[0]
+	if (meta)
+		console.log(meta)
+	else
+		console.error(new Error('No results from Kitsu for the title: ' + animeMeta.title))
+})
+*/
+
 
 module.exports = builder.getInterface()
