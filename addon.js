@@ -11,9 +11,12 @@ const manifest = {
 	"catalogs": [
 		{
 			"name": "BTP Anime",
-			"type": "movie",
+			"type": "series",
 			"id": "BTPAnime",
-			"idPrefix": 'kitsu:'
+			"idPrefixes": ["BTPAnime_"],
+			"extra": [
+				{"name": "kId"}
+			]
 		}
 	],
 	"resources": [
@@ -32,25 +35,23 @@ const manifest = {
 const builder = new addonBuilder(manifest)
 
 const BTPAnimeMovies = require('./database/movies.json');
-const AnimeStreams = require('./stream/movie/BTPAM_YourName.json')
+const AnimeStreams = require('./stream/movie/BTPAnime_YourName.json')
 //const BTPAnimeSeries = require('./database/series.json');
 //const BTPdatabase = require('./database.json')
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
-builder.defineMetaHandler(args => {
-	return new Promise((resolve, reject) => {
-		const url = kitsuEndpoint + '/meta/' + args.type + '/' + args.id + '.json'
-		/*
-	  	needle.get(url, (body) => {
-		if ((body || {}).meta)
-			resolve(body)
-		else
-			reject(new Error('Could not get meta from kitsu api for: '+args.id))
-			})
-		*/
-		resolve(needle.get(url).meta)
+//I want my stuf to be seperate from all others, so I'm making my own IDs, kId is short for Kitsu ID
+builder.defineMetaHandler(({id}) => {
+	return new Promise((resolve) => {
+		resolve(getkitsu(id))
 	})
 })
+
+function getkitsu(id) {
+	const url = kitsuEndpoint + '/meta/series/' + BTPAnimeMovies[id].kId + '.json'
+	kmeta = needle.get(url)
+	return kmeta
+}
 
 builder.defineCatalogHandler(({type, id}) => {
 	console.log("request for catalogs: "+type+" "+id)
@@ -69,7 +70,7 @@ builder.defineStreamHandler(function(args) {
 
 
 
-
+/*
 const animeMeta = {
 	title: 'Your Name.',
 	type: 'movie'
@@ -83,7 +84,7 @@ needle.get(url, (err, resp, body) => {
 	else
 		console.error(new Error('No results from Kitsu for the title: ' + animeMeta.title))
 })
-
+*/
 
 
 module.exports = builder.getInterface()
