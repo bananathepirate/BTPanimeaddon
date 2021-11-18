@@ -10,16 +10,10 @@ const manifest = {
 	"version": "0.0.1",
 	"catalogs": [
 		{
-			"name": "BTPAnimeMovies",
-			"type": "movie",
-			"id": "BTPAnimeMovies",
-			"idPrefixes": ['kitsu:']
-		},
-		{
-			"name": "BTPAnimeSeries",
+			"name": "BTP Anime",
 			"type": "series",
-			"id": "BTPAnimeSeries",
-			"idPrefixes": ['kitsu:']
+			"id": "BTPAnime",
+			"idPrefix": 'kitsu:'
 		}
 	],
 	"resources": [
@@ -28,7 +22,6 @@ const manifest = {
 		"meta"
 	],
 	"types": [
-		"movie",
 		"series",
 		"meta"
 	],
@@ -45,21 +38,20 @@ const AnimeStreams = require('./stream/movie/BTPAM_YourName.json')
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
 builder.defineMetaHandler(args => {
 	return new Promise((resolve, reject) => {
-		const url = kitsuEndpoint + '/meta/series/' + args.id + '.json'
-	  needle.get(url, (err, resp, body) => {
+		const url = kitsuEndpoint + '/meta/' + args.type + '/' + args.id + '.json'
+	  	needle.get(url, (err, resp, body) => {
 		if ((body || {}).meta)
-		  resolve(body)
+			resolve(body)
 		else
-		  console.log('Could not get meta from kitsu api for: '+args.id)
-		  reject(new Error('Could not get meta from kitsu api for: '+args.id))
-	  })
+			reject(new Error('Could not get meta from kitsu api for: '+args.id))
+		})
 	})
 })
 
-builder.defineCatalogHandler(({type, id, extra}) => {
+builder.defineCatalogHandler(({type, id}) => {
 	console.log("request for catalogs: "+type+" "+id)
 	return Promise.resolve({ metas: [
-		BTPAnimeMovies
+		BTPAnime
 	] })
 })
 
@@ -73,7 +65,7 @@ builder.defineStreamHandler(function(args) {
 
 
 
-/*
+
 const animeMeta = {
 	title: 'Your Name.',
 	type: 'movie'
@@ -87,7 +79,7 @@ needle.get(url, (err, resp, body) => {
 	else
 		console.error(new Error('No results from Kitsu for the title: ' + animeMeta.title))
 })
-*/
+
 
 
 module.exports = builder.getInterface()
