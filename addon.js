@@ -13,12 +13,13 @@ const manifest = {
 			"name": "BTPAnimeMovies",
 			"type": "movie",
 			"id": "BTPAnimeMovies",
-			"idPrefixes": "BTPAM_"
+			"idPrefixes": ['kitsu:']
 		},
 		{
 			"name": "BTPAnimeSeries",
 			"type": "series",
-			"id": "BTPAnimeSeries"
+			"id": "BTPAnimeSeries",
+			"idPrefixes": ['kitsu:']
 		}
 	],
 	"resources": [
@@ -27,16 +28,22 @@ const manifest = {
 	],
 	"types": [
 		"movie",
-		"series"
+		"series",
+		"meta"
 	],
 	"name": "BTPanimeaddon",
 	"description": "BananaThePirate's stremio anime addon"
 }
 const builder = new addonBuilder(manifest)
 
+const BTPAnimeMovies = require('./database/movies.json');
+const BTPAnimeSeries = require('./database/series.json');
+const BTPdatabase = require('./database.json')
+
+// Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
 builder.defineCatalogHandler(({type, id, extra}) => {
 	console.log("request for catalogs: "+type+" "+id)
-	// Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
+	
 	return Promise.resolve({ metas: [
 		{
 			id: "tt1254207",
@@ -55,17 +62,16 @@ builder.defineStreamHandler(function(args) {
     }
 })
 
-function GetMovieMeta(AnimeMovie) {
-	const url = kitsuEndpoint + '/catalog/movie/kitsu-search-movie/search=' + encodeURIComponent(AnimeMovie.title) + '.json'
-	needle.get(url, (err, resp, body) => {
-		// presuming the first result is the correct one
-		const meta = ((body || {}).metas || [])[0]
-		if (meta)
-			return meta
+addon.defineMetaHandler(args => {
+	return new Promise((resolve, reject) => {
+		const url = kitsuEndpoint + '/meta/' + args.type + '/' + args.id + '.json'
+	  needle.get(url, (err, resp, body) => {
+		if ((body || {}).meta)
+		  resolve(body)
 		else
-			console.error(new Error('No results from Kitsu for the title: ' + animeMeta.title))
+		  reject(new Error('Could not get meta from kitsu api for: '+args.id))
+	  })
 	})
-
-}
+  })
 
 module.exports = builder.getInterface()
