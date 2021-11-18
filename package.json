@@ -6,7 +6,9 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-		"needle": "^3.0.0",
 		"stremio-addon-sdk": "1.1.x"
+	},
+	"devDependencies": {
+		"needle": "^3.0.0"
 	}
 }

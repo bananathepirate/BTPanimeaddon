@@ -45,11 +45,12 @@ const AnimeStreams = require('./stream/movie/BTPAM_YourName.json')
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
 builder.defineMetaHandler(args => {
 	return new Promise((resolve, reject) => {
-		const url = kitsuEndpoint + '/meta/' + args.type + '/' + args.id + '.json'
+		const url = kitsuEndpoint + '/meta/series/' + args.id + '.json'
 	  needle.get(url, (err, resp, body) => {
 		if ((body || {}).meta)
 		  resolve(body)
 		else
+		  console.log('Could not get meta from kitsu api for: '+args.id)
 		  reject(new Error('Could not get meta from kitsu api for: '+args.id))
 	  })
 	})
