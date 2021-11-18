@@ -43,14 +43,9 @@ const BTPdatabase = require('./database.json')
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
 builder.defineCatalogHandler(({type, id, extra}) => {
 	console.log("request for catalogs: "+type+" "+id)
-	
 	return Promise.resolve({ metas: [
-		{
-			id: "tt1254207",
-			type: "movie",
-			name: "The Big Buck Bunny",
-			poster: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg"
-		}
+		BTPAnimeMovies,
+		BTPAnimeSeries
 	] })
 })
 
